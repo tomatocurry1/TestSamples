@@ -15,11 +15,13 @@ import android.nfc.NfcAdapter;
 import android.nfc.NfcAdapter.CreateNdefMessageCallback;
 import android.nfc.NfcEvent;
 import android.os.AsyncTask;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.os.Vibrator;
 import android.util.Log;
 import android.view.View;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -91,6 +93,29 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback 
 			return;
 		}
 		nfcAdapter.setNdefPushMessageCallback(this, this);
+		
+	       SeekBar seekBar = (SeekBar)findViewById(R.id.seekBar1); 
+	       //final TextView seekBarValue = (TextView)findViewById(R.id.seekbarvalue); 
+	       seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+	 		  
+	 		  @Override
+	 		  public void onProgressChanged(SeekBar seekBar, int progresValue, boolean fromUser) {
+	 			
+	 			  //Toast.makeText(getApplicationContext(), "Changing seekbar's progress", Toast.LENGTH_SHORT).show();
+	 		  }
+	 		
+	 		  @Override
+	 		  public void onStartTrackingTouch(SeekBar seekBar) {
+	 			 // Toast.makeText(getApplicationContext(), "Started tracking seekbar", Toast.LENGTH_SHORT).show();
+	 		  }
+	 		
+	 		  @Override
+	 		  public void onStopTrackingTouch(SeekBar seekBar) {
+	 			 ((LocalBinder) VibrateService.getStatic().onBind(null)).setDistance(seekBar.getProgress());
+	 			  //textView.setText("Covered: " + progress + "/" + seekBar.getMax());
+	 			  //Toast.makeText(getApplicationContext(), "Stopped tracking seekbar", Toast.LENGTH_SHORT).show();
+	 		  }
+	 	   });
 	}
 
 	private boolean checkPlayServices() {
@@ -218,5 +243,4 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback 
 		// record 0 contains the MIME type, record 1 is the AAR, if present
 		nfcMessage.setText(new String(msg.getRecords()[0].getPayload()));
 	}
-
 }

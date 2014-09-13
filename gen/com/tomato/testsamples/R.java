@@ -1490,8 +1490,8 @@ containing a value of this type.
         public static final int end=0x7f080025;
         public static final int expand_activities_button=0x7f080038;
         public static final int expanded_menu=0x7f08003e;
-        public static final int gpsLatitudeText=0x7f080052;
-        public static final int gpsLongitudeText=0x7f080053;
+        public static final int gpsLatitudeText=0x7f080053;
+        public static final int gpsLongitudeText=0x7f080054;
         public static final int grayscale=0x7f080012;
         public static final int holo_dark=0x7f080005;
         public static final int holo_light=0x7f080006;
@@ -1501,6 +1501,7 @@ containing a value of this type.
         public static final int icon=0x7f08003c;
         public static final int ifRoom=0x7f08001d;
         public static final int image=0x7f080039;
+        public static final int linearLayout1=0x7f080052;
         public static final int linearTop=0x7f08004e;
         public static final int listMode=0x7f080014;
         public static final int list_item=0x7f08003b;
@@ -1527,6 +1528,7 @@ containing a value of this type.
         public static final int search_plate=0x7f080048;
         public static final int search_src_text=0x7f080049;
         public static final int search_voice_btn=0x7f08004d;
+        public static final int seekBar1=0x7f080055;
         public static final int selectionDetails=0x7f08000b;
         public static final int shortcut=0x7f080040;
         public static final int showCustom=0x7f08001a;

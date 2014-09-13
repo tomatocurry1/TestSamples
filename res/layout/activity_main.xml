@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:screenOrientation="portrait"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
@@ -21,11 +22,11 @@
 
     <Button
         android:id="@+id/vibrate"
-        android:onClick="vibrateClicked"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
+        android:onClick="vibrateClicked"
         android:text="Vibrate" />
 
     <TextView
@@ -40,14 +41,15 @@
 
     <Button
         android:id="@+id/checkGPSButton"
-        android:onClick="gpsClicked"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/nfcMessage"
         android:layout_alignTop="@+id/linearTop"
+        android:onClick="gpsClicked"
         android:text="Check GPS" />
 
     <LinearLayout
+        android:id="@+id/linearLayout1"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/checkGPSButton"
@@ -70,5 +72,14 @@
             android:text="No Longitude"
             android:textSize="18sp" />
     </LinearLayout>
+
+    <SeekBar
+        android:id="@+id/seekBar1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/linearLayout1"
+        android:layout_marginTop="104dp"
+        android:max="40" />
 
 </RelativeLayout>
