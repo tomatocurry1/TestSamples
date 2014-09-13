@@ -32,10 +32,11 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback 
 	static final String PROPERTY_APP_VERSION = "app_version";
 	static final int APP_VERSION = 0;
 	static final String SENDER_ID = "472922563262";
-	
+
 	private NfcAdapter nfcAdapter;
 	private LocationListener locationListener;
 	private LocationManager locationManager;
+	private Intent vibrateIntent;
 
 	GoogleCloudMessaging gcm;
 	String gcmRegistrationId;
@@ -50,9 +51,7 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback 
 		setContentView(R.layout.activity_main);
 
 		if (!checkPlayServices()) {
-			Toast.makeText(MainActivity.this,
-					"Please get a valid Play Services APK / update! Sorry :(",
-					Toast.LENGTH_LONG).show();
+			Toast.makeText(MainActivity.this, "Please get a valid Play Services APK / update! Sorry :(", Toast.LENGTH_LONG).show();
 			finish();
 		}
 
@@ -68,49 +67,26 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback 
 		longitudeField = (TextView) findViewById(R.id.gpsLongitudeText);
 
 		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		/*
-		 * Criteria criteria = new Criteria(); provider =
-		 * locationManager.getBestProvider(criteria, false); Location location =
-		 * locationManager.getLastKnownLocation(provider);
-		 * 
-		 * if (location != null) { System.out.println("Provider " + provider +
-		 * " has been selected."); onLocationChanged(location); } else {
-		 * latituteField.setText("Location not available");
-		 * longitudeField.setText("Location not available"); }
-		 */
 		locationListener = new LocationListener() {
 			public void onLocationChanged(Location location) {
 				Log.d("gps", "GPS updated " + location);
 			}
 
-			public void onStatusChanged(String provider, int status,
-					Bundle extras) {
-				Toast.makeText(MainActivity.this,
-						"onStatusChanged: " + provider + ", " + status,
-						Toast.LENGTH_LONG).show();
+			public void onStatusChanged(String provider, int status, Bundle extras) {
 			}
 
 			public void onProviderEnabled(String provider) {
-				Toast.makeText(MainActivity.this,
-						"onProviderEnabled: " + provider, Toast.LENGTH_LONG)
-						.show();
 			}
 
 			public void onProviderDisabled(String provider) {
-				Toast.makeText(MainActivity.this,
-						"onProviderDisabled: " + provider, Toast.LENGTH_LONG)
-						.show();
 			}
 		};
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
-				0, locationListener);
-		locationManager.requestLocationUpdates(
-				LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
 
 		nfcAdapter = NfcAdapter.getDefaultAdapter(this);
 		if (nfcAdapter == null) {
-			Toast.makeText(this, "NFC is not available", Toast.LENGTH_LONG)
-					.show();
+			Toast.makeText(this, "NFC is not available", Toast.LENGTH_LONG).show();
 			finish();
 			return;
 		}
@@ -121,13 +97,11 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback 
 		int result = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
 		if (result != ConnectionResult.SUCCESS) {
 			if (GooglePlayServicesUtil.isUserRecoverableError(result)) {
-				GooglePlayServicesUtil.getErrorDialog(result, this, 9000)
-						.show(); // 9000 = PLAY_SERVICES_RESOLUTION_REQUEST
+				GooglePlayServicesUtil.getErrorDialog(result, this, 9000).show(); // 9000
+																					// =
+																					// PLAY_SERVICES_RESOLUTION_REQUEST
 			} else {
-				Toast.makeText(
-						MainActivity.this,
-						"Can't find google play services or recover, aborting! "
-								+ result, Toast.LENGTH_LONG).show();
+				Toast.makeText(MainActivity.this, "Can't find google play services or recover, aborting! " + result, Toast.LENGTH_LONG).show();
 				finish();
 			}
 			return false;
@@ -149,7 +123,7 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback 
 		}
 		return regId;
 	}
-	
+
 	private void registerInBackground() {
 		Log.d("gcm", "register in background");
 		new AsyncTask<Void, Void, Void>() {
@@ -158,7 +132,7 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback 
 				try {
 					gcmRegistrationId = gcm.register(SENDER_ID);
 					Log.d("gcm", "regid is " + gcmRegistrationId);
-					//TODO: send registration id to server
+					// TODO: send registration id to server
 					Log.w("gcm", "Registration ID is " + gcmRegistrationId + " TODO http post");
 					SharedPreferences prefs = getSharedPreferences(MainActivity.class.getSimpleName(), Context.MODE_PRIVATE);
 					SharedPreferences.Editor editor = prefs.edit();
@@ -169,16 +143,14 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback 
 					Log.e("gcmn", "IOException in registerInBackground", e);
 					finish();
 				}
-				return (Void)null;
+				return (Void) null;
 			}
 		}.execute();
 	}
 
 	private Location getBestLastLocation() {
-		Location gps = locationManager
-				.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-		Location net = locationManager
-				.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+		Location gps = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+		Location net = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
 		if (gps == null && net == null) {
 			Log.w("gps", "Both gps and net are null! Returning null :(");
@@ -195,8 +167,8 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback 
 	}
 
 	public void vibrateClicked(View v) {
-		Vibrator vi = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-		vi.vibrate(5000);
+		vibrateIntent = new Intent(this, VibrateService.class);
+		startService(vibrateIntent);
 	}
 
 	public void gpsClicked(View v) {
@@ -204,20 +176,14 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback 
 		// locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER,
 		// locationListener, Looper.getMainLooper());
 		Location location = getBestLastLocation();
-		latituteField.setText(location.getLatitude() + ", "
-				+ location.getAccuracy());
-		longitudeField.setText(location.getLongitude() + ", "
-				+ location.getAccuracy());
+		latituteField.setText(location.getLatitude() + ", " + location.getAccuracy());
+		longitudeField.setText(location.getLongitude() + ", " + location.getAccuracy());
 	}
 
 	@Override
 	public NdefMessage createNdefMessage(NfcEvent event) {
-		String text = "Beam me up, Android!\n\n" + "Beam Time: "
-				+ System.currentTimeMillis();
-		NdefMessage msg = new NdefMessage(
-				new NdefRecord[] { NdefRecord.createMime(
-						"application/vnd.com.example.android.beam",
-						text.getBytes()) });
+		String text = "Beam me up, Android!\n\n" + "Beam Time: " + System.currentTimeMillis();
+		NdefMessage msg = new NdefMessage(new NdefRecord[] { NdefRecord.createMime("application/vnd.com.example.android.beam", text.getBytes()) });
 		return msg;
 	}
 
@@ -225,9 +191,7 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback 
 	public void onResume() {
 		super.onResume();
 		if (!checkPlayServices()) {
-			Toast.makeText(MainActivity.this,
-					"Please get a valid Play Services APK / update! Sorry :(",
-					Toast.LENGTH_LONG).show();
+			Toast.makeText(MainActivity.this, "Please get a valid Play Services APK / update! Sorry :(", Toast.LENGTH_LONG).show();
 			finish();
 		}
 		if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
@@ -237,13 +201,19 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback 
 
 	@Override
 	public void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
 		setIntent(intent);
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		stopService(vibrateIntent);
 	}
 
 	void processIntent(Intent intent) {
 		nfcMessage = (TextView) findViewById(R.id.nfcMessage);
-		Parcelable[] rawMsgs = intent
-				.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+		Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
 		NdefMessage msg = (NdefMessage) rawMsgs[0];
 		// record 0 contains the MIME type, record 1 is the AAR, if present
 		nfcMessage.setText(new String(msg.getRecords()[0].getPayload()));
