@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -49,6 +50,8 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		
 
 		if (!checkPlayServices()) {
 			Toast.makeText(MainActivity.this, "Please get a valid Play Services APK / update! Sorry :(", Toast.LENGTH_LONG).show();
