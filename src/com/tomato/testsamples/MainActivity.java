@@ -3,6 +3,7 @@ package com.tomato.testsamples;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -16,7 +17,6 @@ import android.os.Looper;
 import android.os.Parcelable;
 import android.os.Vibrator;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,6 +25,7 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback 
 	private NfcAdapter nfcAdapter;
 	private LocationListener locationListener;
 	private LocationManager locationManager;
+	private Location currentLocation;
 	
 	private TextView nfcMessage;
 	private TextView latituteField;
@@ -51,8 +52,7 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback 
 		 */
 		locationListener = new LocationListener() {
 			public void onLocationChanged(Location location) {
-				latituteField.setText(String.valueOf(location.getLatitude()));
-				longitudeField.setText(String.valueOf(location.getLongitude()));
+				Log.d("gps", "GPS updated " + location);
 			}
 
 			public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -68,6 +68,7 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback 
 			}
 		};
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
 
 		nfcAdapter = NfcAdapter.getDefaultAdapter(this);
 		if (nfcAdapter == null) {
@@ -77,6 +78,24 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback 
 		}
 		nfcAdapter.setNdefPushMessageCallback(this, this);
 	}
+	
+	private Location getBestLastLocation() {
+		Location gps = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+		Location net = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+		
+		if (gps == null && net == null) {
+			Log.w("gps", "Both gps and net are null! Returning null :(");
+			return null;
+		} else if (gps == null) {
+			return net;
+		} else if (net == null) {
+			return gps;
+		} else if (gps.getTime() > net.getTime()) {
+			return gps;
+		} else {
+			return net;
+		}
+	}
 
 	public void vibrateClicked(View v) {
 		Vibrator vi = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -85,13 +104,10 @@ public class MainActivity extends Activity implements CreateNdefMessageCallback 
 	
 	public void gpsClicked(View v) {
 		Log.d("gps", "requesting update");
-		locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, Looper.getMainLooper());
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
+		//locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, Looper.getMainLooper());
+		Location location = getBestLastLocation();
+		latituteField.setText(location.getLatitude() + ", " + location.getAccuracy());
+		longitudeField.setText(location.getLongitude() + ", " + location.getAccuracy());
 	}
 
 	@Override
